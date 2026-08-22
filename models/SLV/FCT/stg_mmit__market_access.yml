@@ -1,0 +1,38 @@
+version: 2
+
+models:
+  - name: stg_mmit__market_access
+    description: >
+      Weekly discount rate and payer mix by payer segment, at national level.
+      Grain is week x segment.
+
+      This model is the origin of the discount half of net sales. Anyone tracing
+      net sales upstream passes through here and lands in MMIT — not in the
+      finance system, which is where most people assume it comes from.
+    columns:
+      - name: access_week
+        description: Week-starting date.
+        tests: [not_null]
+      - name: payer_segment
+        description: Payer segment the discount was negotiated for.
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['Commercial', 'Medicare', 'Medicaid', 'Federal']
+      - name: segment_discount
+        description: Negotiated discount rate for the segment, as a decimal.
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 1
+      - name: payer_mix
+        description: >
+          Share of national volume attributable to the segment. Sums to 1.0 across
+          the four segments in any given week.
+        tests: [not_null]
+      - name: loaded_at
+        description: Timestamp the source row landed in bronze.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [access_week, payer_segment]

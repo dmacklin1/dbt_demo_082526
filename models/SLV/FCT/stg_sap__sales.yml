@@ -1,0 +1,35 @@
+version: 2
+
+models:
+  - name: stg_sap__sales
+    description: >
+      Weekly gross sales, net sales goal, and the SAP-calculated net sales figure
+      retained for reconciliation. Grain is week x territory.
+    columns:
+      - name: sales_week
+        description: Week-starting date.
+        tests: [not_null]
+      - name: territory_id
+        description: Territory the sales roll up to.
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_internal__geography')
+              field: territory_id
+      - name: gross_sales
+        description: Gross sales in USD before payer discount. Null after the last close.
+      - name: net_sales_goal
+        description: >
+          Territory net sales goal for the week. Populated for future weeks, which
+          is what allows forward-looking attainment reporting.
+      - name: net_sales_sap
+        description: >
+          SAP's own net sales calculation. Not the reported figure — kept only so
+          the value recomputed in gold can be reconciled against it.
+      - name: revenue_deduction_sap
+        description: SAP's own gross-to-net deduction. Reconciliation only.
+      - name: loaded_at
+        description: Timestamp the source row landed in bronze.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [sales_week, territory_id]

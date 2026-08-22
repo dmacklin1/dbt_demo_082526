@@ -1,0 +1,18 @@
+version: 2
+
+# -----------------------------------------------------------------------
+# DEMO GAP: this model is deliberately undocumented. Run dbt Wizard against
+# it live. Note that `tier` is exactly the column an AI cannot get right on
+# its own — it will say "the tier of the HCP", which is true and useless.
+# -----------------------------------------------------------------------
+models:
+  - name: stg_veeva__hcp
+    columns:
+      - name: hcp_id
+        tests: [unique, not_null]
+      - name: tier
+        tests:
+          - accepted_values:
+              values: ['T1', 'T2', 'T3', 'NT']
+      - name: is_targeted
+      - name: loaded_at

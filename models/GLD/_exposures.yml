@@ -1,0 +1,47 @@
+version: 2
+
+exposures:
+
+  # -------------------------------------------------------------------
+  # HEALTHY. Fed only by Veeva and internal reference data, both of which
+  # refresh daily. This tile is the control in the demo — it proves the
+  # signal discriminates rather than just alarming.
+  # -------------------------------------------------------------------
+  - name: field_force_weekly_scorecard
+    label: "Field Force Weekly Scorecard"
+    type: dashboard
+    maturity: high
+    url: https://acme.example.com/dashboards/field-force-weekly
+    description: >
+      Weekly call plan attainment, reach, and frequency by territory, area, and
+      region. Reviewed every Monday by the regional sales directors and by field
+      operations. This is the operational scorecard the field force is managed
+      against.
+    depends_on:
+      - ref('fct_call_activity')
+    owner:
+      name: Field Operations
+      email: field-ops@acme.example.com
+
+  # -------------------------------------------------------------------
+  # DEGRADED. Fed by SAP (currently ~14 days behind -> WARN) and IQVIA
+  # (months behind -> ERROR). This is the tile that carries the demo.
+  # -------------------------------------------------------------------
+  - name: executive_brand_review
+    label: "Executive Brand Review"
+    type: dashboard
+    maturity: high
+    url: https://acme.example.com/dashboards/executive-brand-review
+    description: >
+      Monthly executive review of brand performance: net sales, goal attainment,
+      gross-to-net, and competitive share position. Presented to the commercial
+      leadership team.
+
+      This dashboard depends on the finance feed, the payer access feed, and the
+      syndicated market data. When any of them is behind, the numbers are still
+      rendered but are no longer current.
+    depends_on:
+      - ref('fct_territory_performance')
+    owner:
+      name: Commercial Analytics
+      email: commercial-analytics@acme.example.com

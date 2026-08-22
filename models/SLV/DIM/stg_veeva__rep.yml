@@ -1,0 +1,21 @@
+version: 2
+
+models:
+  - name: stg_veeva__rep
+    description: >
+      One row per sales rep. Reps are aligned one-to-one with territories, which
+      is why territory_id is unique here as well as being a foreign key.
+    columns:
+      - name: rep_id
+        description: Unique rep identifier.
+        tests: [unique, not_null]
+      - name: territory_id
+        description: Territory the rep owns. One rep per territory.
+        tests:
+          - unique
+          - not_null
+          - relationships:
+              to: ref('stg_internal__geography')
+              field: territory_id
+      - name: loaded_at
+        description: Timestamp the source row landed in bronze.

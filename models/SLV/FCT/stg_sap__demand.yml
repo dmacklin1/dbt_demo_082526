@@ -1,0 +1,27 @@
+version: 2
+
+models:
+  - name: stg_sap__demand
+    description: >
+      Weekly prescription demand by territory. Grain is week x territory. Actuals
+      stop at the last financial close; the forecast column continues past it.
+    columns:
+      - name: demand_week
+        description: Week-starting date.
+        tests: [not_null]
+      - name: territory_id
+        description: Territory the demand rolls up to.
+        tests: [not_null]
+      - name: trx_actual
+        description: Total prescriptions in the week. Null for weeks after the last close.
+      - name: nbrx_actual
+        description: >
+          New-to-brand prescriptions in the week. The leading indicator of brand
+          growth. Null for weeks after the last close.
+      - name: nbrx_forecast
+        description: Forecast NBRx, populated for all weeks including future ones.
+      - name: loaded_at
+        description: Timestamp the source row landed in bronze.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [demand_week, territory_id]

@@ -1,0 +1,34 @@
+version: 2
+
+models:
+  - name: stg_internal__geography
+    description: >
+      Territory alignment hierarchy. Territory rolls up to area, area to region,
+      region to nation. Reset at the start of each plan year, which means any
+      analysis spanning an alignment change is comparing different footprints.
+    columns:
+      - name: territory_id
+        description: Unique territory identifier. Primary key.
+        tests: [unique, not_null]
+      - name: territory_name
+        description: Human-readable territory name — state plus sequence number.
+      - name: area_id
+        description: Area identifier.
+      - name: area_name
+        description: Area rollup. Aligned to state.
+      - name: region_id
+        description: Region identifier.
+      - name: region_name
+        description: Region rollup.
+        tests:
+          - accepted_values:
+              values: ['Northeast', 'Midwest', 'South', 'Northwest']
+      - name: nation
+        description: Always USA in the current alignment.
+      - name: population
+        description: >
+          Population covered by the territory. Territories are aligned to
+          comparable workload, so this clusters tightly around the mean. Used to
+          normalise territory performance for size.
+      - name: loaded_at
+        description: Timestamp the source row landed in bronze.

@@ -1,0 +1,63 @@
+version: 2
+
+sources:
+  - name: sap
+    description: >
+      SAP. System of record for shipped demand and financial sales actuals.
+      Loaded after each weekly financial close, which currently runs about two
+      weeks behind the calendar.
+    database: DBT_DEMO_BRZ
+    schema: SOURCE_A
+    loaded_at_field: INSERT_TIME
+    tables:
+
+      - name: f_sales
+        identifier: F_SALES
+        description: >
+          Weekly gross and net sales by territory, plus the net sales goal. Rows
+          beyond the last financial close carry goals only, with null actuals.
+        freshness:
+          warn_after: {count: 7, period: day}
+          error_after: {count: 21, period: day}
+        columns:
+          - name: DATE
+            description: Week-starting date.
+          - name: TERRITORY_ID
+            description: Territory the sales roll up to.
+          - name: GROSS_SALES
+            description: Gross sales in USD before any payer discount is applied.
+          - name: NET_SALES
+            description: >
+              Net sales as calculated by SAP. Retained for reconciliation only.
+              The reported figure is recomputed in the gold layer from the MMIT
+              payer mix so the discount assumption is auditable.
+          - name: REVENUE_DEDUCTION
+            description: SAP's own gross-to-net deduction. Reconciliation only.
+          - name: NET_SALES_GOALS
+            description: >
+              Territory net sales goal for the week. Populated for future weeks,
+              which is what makes forward-looking attainment reporting possible.
+          - name: INSERT_TIME
+            description: Timestamp the row landed in bronze. Drives source freshness.
+
+      - name: f_demand
+        identifier: F_DEMAND
+        description: >
+          Weekly prescription demand by territory. TRx is total prescriptions,
+          NBRx is new-to-brand prescriptions.
+        freshness:
+          warn_after: {count: 7, period: day}
+          error_after: {count: 21, period: day}
+        columns:
+          - name: DATE
+            description: Week-starting date.
+          - name: TERRITORY_ID
+            description: Territory the demand rolls up to.
+          - name: TRX
+            description: Total prescriptions written in the week. Null after the last close.
+          - name: NBRX
+            description: New-to-brand prescriptions in the week. Null after the last close.
+          - name: NBRX_FORECAST
+            description: Forecast NBRx. Populated for all weeks including future ones.
+          - name: INSERT_TIME
+            description: Timestamp the row landed in bronze. Drives source freshness.

@@ -1,0 +1,77 @@
+version: 2
+
+models:
+  - name: fct_call_activity
+    description: >
+      Field force execution by territory and week: call plan attainment, reach,
+      and frequency, with the territory hierarchy and sales cycle attached.
+
+      Reviewed every Monday by regional sales directors and field operations.
+      This is the operational scorecard the field force is managed against.
+
+      Every upstream source of this model — Veeva CRM and internal reference data
+      — refreshes daily, so this fact stays current even when the finance and
+      syndicated feeds are behind.
+    columns:
+      - name: call_week
+        description: Week-starting date.
+        tests: [not_null]
+      - name: territory_id
+        description: Territory the activity rolls up to.
+        tests: [not_null]
+      - name: rep_id
+        description: Rep aligned to the territory.
+      - name: territory_name
+        description: Human-readable territory name.
+      - name: area_name
+        description: Area rollup, aligned to state.
+      - name: region_name
+        description: Region rollup.
+      - name: cycle_id
+        description: Sales cycle the week belongs to. Targets are set by cycle.
+      - name: selling_days
+        description: Selling days available in the week.
+      - name: calls_planned
+        description: Calls on the plan for the territory that week.
+      - name: calls_completed
+        description: Calls actually executed. Always at or below calls_planned.
+      - name: hcps_reached
+        description: Distinct HCPs who received at least one completed call.
+      - name: hcps_targeted
+        description: >
+          Distinct HCPs on the target list (tiers T1 to T3) with a planned call.
+          Non-target HCPs are excluded, which is what makes reach comparable
+          across territories of different composition.
+      - name: calls_in_person
+        description: Completed calls delivered face to face rather than virtually.
+      - name: calls_tier_1
+        description: >
+          Completed calls to top-decile prescribers. Watched closely because tier
+          1 coverage is the strongest predictor of new-to-brand growth.
+      - name: call_plan_attainment
+        description: >
+          Completed calls divided by planned calls. The primary field force
+          execution metric. Target is 0.80.
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 1
+      - name: reach_pct
+        description: >
+          Share of the target HCP list that received at least one completed call
+          in the week. Distinct HCPs reached over distinct HCPs targeted.
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 1
+      - name: frequency
+        description: >
+          Average completed calls per HCP reached. Read alongside reach: high
+          reach with low frequency means broad but shallow coverage.
+      - name: calls_per_selling_day
+        description: >
+          Completed calls normalised by selling days available, so a holiday week
+          is not misread as a performance drop.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [call_week, territory_id]

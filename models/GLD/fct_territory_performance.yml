@@ -1,0 +1,88 @@
+version: 2
+
+models:
+  - name: fct_territory_performance
+    description: >
+      Territory commercial performance by week. Volume, gross-to-net, goal
+      attainment, competitive share position, and the field activity behind it.
+
+      This model draws on four independent source systems for a single set of
+      reported numbers. Gross sales and demand come from SAP, the discount
+      applied to them comes from MMIT, competitive share comes from IQVIA, and
+      call activity comes from Veeva. When any of those feeds is late, the
+      dashboard still renders but the numbers are no longer current — which is
+      not visible from the dashboard itself.
+
+      That is why the data health signal on this model matters more than on most.
+    columns:
+      - name: sales_week
+        description: Week-starting date.
+        tests: [not_null]
+      - name: territory_id
+        description: Territory the performance rolls up to.
+        tests: [not_null]
+      - name: territory_name
+        description: Human-readable territory name.
+      - name: area_name
+        description: Area rollup, aligned to state.
+      - name: region_name
+        description: Region rollup.
+      - name: cycle_id
+        description: Sales cycle the week belongs to.
+      - name: trx_actual
+        description: Total prescriptions in the week. Null after the last financial close.
+      - name: nbrx_actual
+        description: >
+          New-to-brand prescriptions in the week. The leading indicator of growth.
+          Null after the last financial close.
+      - name: nbrx_forecast
+        description: Forecast NBRx, populated for all weeks including future ones.
+      - name: gross_sales
+        description: Gross sales in USD from SAP, before any payer discount.
+      - name: blended_discount_rate
+        description: >
+          Volume-weighted payer discount for the week, sourced from MMIT — not
+          from the finance system. This is the input most people assume comes
+          from SAP and does not. Typically runs between 0.25 and 0.35 given the
+          current payer mix.
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 1
+              config:
+                where: "blended_discount_rate is not null"
+      - name: revenue_deduction
+        description: Gross sales multiplied by the blended discount rate.
+      - name: net_sales
+        description: >
+          Reported net sales. Gross sales less the revenue deduction, recomputed
+          here from first principles rather than taken from SAP so that the
+          discount assumption behind it is visible and auditable.
+      - name: net_sales_goal
+        description: Territory net sales goal for the week.
+      - name: goal_attainment_pct
+        description: >
+          Net sales divided by net sales goal. The headline number on the
+          executive review. Note that it inherits the freshness of both the SAP
+          and the MMIT feeds.
+      - name: brand_trx_share
+        description: >
+          National share of total market prescriptions held by the brand in the
+          month the week falls in, across both indications. Sourced from IQVIA
+          and therefore only as current as the last syndicated delivery.
+      - name: market_trx_total
+        description: Total market prescriptions for the month, across all tracked drugs.
+      - name: calls_completed
+        description: Completed calls in the territory that week.
+      - name: hcps_reached
+        description: Distinct HCPs who received at least one completed call.
+      - name: reach_pct
+        description: Share of the target HCP list reached in the week.
+      - name: net_sales_sap
+        description: >
+          SAP's own net sales figure. Not reported anywhere — retained solely so
+          the recomputed value can be reconciled against it by
+          assert_net_sales_reconciles_to_sap.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [sales_week, territory_id]

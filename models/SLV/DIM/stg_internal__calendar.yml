@@ -1,0 +1,25 @@
+version: 2
+
+models:
+  - name: stg_internal__calendar
+    description: >
+      Weekly calendar spine with the sales cycle each week belongs to and the
+      selling days available in it. Joining through this rather than raw dates is
+      what makes cycle-over-cycle comparison possible.
+    columns:
+      - name: calendar_week
+        description: Week-starting date. Primary key.
+        tests: [unique, not_null]
+      - name: calendar_year
+        description: Calendar year.
+      - name: cycle_id
+        description: >
+          Sales cycle the week belongs to, formatted YYYY-Qn. Field force targets
+          are set and measured by cycle, not by month.
+        tests: [not_null]
+      - name: selling_days
+        description: >
+          Selling days available in the week. Used to normalise call rates so a
+          holiday week is not read as a performance drop.
+      - name: loaded_at
+        description: Timestamp the source row landed in bronze.

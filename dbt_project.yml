@@ -1,6 +1,6 @@
 name: 'acme_field_force'
 version: '1.0.0'
-profile: 'default'          # <-- Partner Connect usually names this 'default'. Confirm in your env.
+profile: 'default'          # <-- Partner Connect usually names this 'default'. Confirm in your environment.
 
 model-paths: ["models"]
 macro-paths: ["macros"]
@@ -8,20 +8,22 @@ test-paths:  ["tests"]
 target-path: "target"
 clean-targets: ["target", "dbt_packages"]
 
+# =====================================================================
+# CONFIRM THESE MATCH THE DATABASES AND SCHEMAS YOU CREATED.
+# Sources live in DBT_DEMO_BRZ.SOURCE_A (set in models/BRZ/_sources_*.yml).
+# =====================================================================
 models:
   acme_field_force:
-    staging:
+
+    SLV:
       +materialized: view
       +database: DBT_DEMO_SLV
-      facts:
-        +schema: FACTS
-      dims:
-        +schema: DIMS
-    intermediate:
-      +materialized: view
-      +database: DBT_DEMO_SLV
-      +schema: FACTS
-    marts:
+      FCT:
+        +schema: FCT
+      DIM:
+        +schema: DIM
+
+    GLD:
       +materialized: table
       +database: DBT_DEMO_GLD
       +schema: OUTPUT

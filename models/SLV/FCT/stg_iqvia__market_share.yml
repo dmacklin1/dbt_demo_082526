@@ -1,0 +1,24 @@
+version: 2
+
+# -----------------------------------------------------------------------
+# DEMO GAP: descriptions deliberately omitted. Backup target for the live
+# dbt Wizard documentation demo if the HCP model misbehaves.
+# -----------------------------------------------------------------------
+models:
+  - name: stg_iqvia__market_share
+    columns:
+      - name: share_month_end
+        tests: [not_null]
+      - name: drug_name
+        tests: [not_null]
+      - name: indication
+        tests:
+          - accepted_values:
+              values: ['Derm', 'Rheum']
+      - name: trx_volume
+      - name: trx_share
+      - name: is_our_brand
+      - name: loaded_at
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [share_month_end, drug_name, indication]
