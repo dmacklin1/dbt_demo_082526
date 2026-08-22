@@ -7,7 +7,6 @@ sources:
       master data. Delivered as a nightly sync into the bronze landing zone.
     database: DBT_DEMO_BRZ
     schema: SOURCE_A
-    loaded_at_field: INSERT_TIME
     tables:
 
       - name: f_calls
@@ -16,9 +15,6 @@ sources:
           One row per PLANNED call. CALL_ID is populated only when the call was
           actually completed, so a null CALL_ID is a planned call that did not
           happen. This is the grain reach and frequency are built from.
-        freshness:
-          warn_after: {count: 24, period: hour}
-          error_after: {count: 48, period: hour}
         columns:
           - name: CALL_ID
             description: >
@@ -46,6 +42,10 @@ sources:
       # DEMO GAP: freshness deliberately NOT configured on the HCP master.
       # Uncomment live on the call to close a monitoring blind spot in 30s.
       # -----------------------------------------------------------------
+        config:
+          freshness:
+            warn_after: {count: 24, period: hour}
+            error_after: {count: 48, period: hour}
       - name: d_hcp
         identifier: D_HCP
         description: HCP master. One row per health care professional.
@@ -60,9 +60,6 @@ sources:
       - name: d_rep
         identifier: D_REP
         description: Sales rep master. One row per rep, aligned to one territory.
-        freshness:
-          warn_after: {count: 14, period: day}
-          error_after: {count: 30, period: day}
         columns:
           - name: REP_ID
             description: Unique rep identifier.
@@ -70,3 +67,9 @@ sources:
             description: Territory the rep is aligned to. One rep per territory.
           - name: INSERT_TIME
             description: Timestamp the row landed in bronze. Drives source freshness.
+        config:
+          freshness:
+            warn_after: {count: 14, period: day}
+            error_after: {count: 30, period: day}
+    config:
+      loaded_at_field: INSERT_TIME

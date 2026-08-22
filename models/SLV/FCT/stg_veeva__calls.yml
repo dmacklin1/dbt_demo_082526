@@ -17,8 +17,9 @@ models:
         tests:
           - not_null
           - relationships:
-              to: ref('stg_veeva__hcp')
-              field: hcp_id
+              arguments:
+                to: ref('stg_veeva__hcp')
+                field: hcp_id
       - name: rep_id
         description: Rep who owned the call.
         tests: [not_null]
@@ -27,25 +28,29 @@ models:
         tests:
           - not_null
           - relationships:
-              to: ref('stg_internal__geography')
-              field: territory_id
+              arguments:
+                to: ref('stg_internal__geography')
+                field: territory_id
       - name: indication
         description: Therapeutic area the call was detailed against.
         tests:
           - accepted_values:
-              values: ['Derm', 'Rheum']
+              arguments:
+                values: ['Derm', 'Rheum']
       - name: call_type
         description: Whether the interaction was in person or virtual.
         tests:
           - accepted_values:
-              values: ['In-Person', 'Virtual']
+              arguments:
+                values: ['In-Person', 'Virtual']
       - name: planned_call_flag
         description: Always 1. One row equals one planned call.
       - name: completed_call_flag
         description: 1 when the call was completed, 0 when it was planned only.
         tests:
           - accepted_values:
-              values: [0, 1]
-              quote: false
+              arguments:
+                values: [0, 1]
+                quote: false
       - name: loaded_at
         description: Timestamp the source row landed in bronze.

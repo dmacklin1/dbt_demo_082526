@@ -22,7 +22,8 @@ models:
         description: Region rollup.
         tests:
           - accepted_values:
-              values: ['Northeast', 'Midwest', 'South', 'Northwest']
+              arguments:
+                values: ['Northeast', 'Midwest', 'South', 'Northwest']
       - name: nation
         description: Always USA in the current alignment.
       - name: population

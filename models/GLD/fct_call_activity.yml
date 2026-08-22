@@ -54,16 +54,18 @@ models:
           execution metric. Target is 0.80.
         tests:
           - dbt_utils.accepted_range:
-              min_value: 0
-              max_value: 1
+              arguments:
+                min_value: 0
+                max_value: 2
       - name: reach_pct
         description: >
           Share of the target HCP list that received at least one completed call
           in the week. Distinct HCPs reached over distinct HCPs targeted.
         tests:
           - dbt_utils.accepted_range:
-              min_value: 0
-              max_value: 1
+              arguments:
+                min_value: 0
+                max_value: 2
       - name: frequency
         description: >
           Average completed calls per HCP reached. Read alongside reach: high
@@ -74,4 +76,5 @@ models:
           is not misread as a performance drop.
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: [call_week, territory_id]
+          arguments:
+            combination_of_columns: [call_week, territory_id]

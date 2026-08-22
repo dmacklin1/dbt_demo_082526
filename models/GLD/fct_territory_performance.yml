@@ -47,10 +47,11 @@ models:
           current payer mix.
         tests:
           - dbt_utils.accepted_range:
-              min_value: 0
-              max_value: 1
               config:
                 where: "blended_discount_rate is not null"
+              arguments:
+                min_value: 0
+                max_value: 1
       - name: revenue_deduction
         description: Gross sales multiplied by the blended discount rate.
       - name: net_sales
@@ -85,4 +86,5 @@ models:
           assert_net_sales_reconciles_to_sap.
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: [sales_week, territory_id]
+          arguments:
+            combination_of_columns: [sales_week, territory_id]

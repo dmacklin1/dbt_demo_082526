@@ -14,7 +14,6 @@ renamed as (
         region_id,
         region_name,
         nation,
-        population,
         insert_time                 as loaded_at
 
     from source

@@ -8,14 +8,12 @@ sources:
       configured on these — they are static by design, not unmonitored.
     database: DBT_DEMO_BRZ
     schema: SOURCE_A
-    loaded_at_field: INSERT_TIME
     tables:
 
       - name: d_geography
         identifier: D_GEOGRAPHY
         description: >
-          Territory alignment hierarchy: territory to area to region to nation,
-          with the population each territory covers. Reset annually.
+          Territory alignment hierarchy: territory to area to region to nation
         columns:
           - name: TERRITORY_ID
             description: Unique territory identifier. Primary key.
@@ -31,8 +29,6 @@ sources:
             description: "Region rollup: Northeast, Midwest, South, or Northwest."
           - name: NATION
             description: Always USA.
-          - name: POPULATION
-            description: Population covered by the territory.
           - name: INSERT_TIME
             description: Timestamp the row landed in bronze.
 
@@ -50,3 +46,5 @@ sources:
             description: Selling days available in the week. Used to normalise call rates.
           - name: INSERT_TIME
             description: Timestamp the row landed in bronze.
+    config:
+      loaded_at_field: INSERT_TIME

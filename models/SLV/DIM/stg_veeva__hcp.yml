@@ -13,6 +13,7 @@ models:
       - name: tier
         tests:
           - accepted_values:
-              values: ['T1', 'T2', 'T3', 'NT']
+              arguments:
+                values: ['T1', 'T2', 'T3', 'NT']
       - name: is_targeted
       - name: loaded_at
