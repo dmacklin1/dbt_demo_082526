@@ -8,7 +8,6 @@ sources:
       currently well behind schedule.
     database: DBT_DEMO_BRZ
     schema: SOURCE_A
-    loaded_at_field: INSERT_TIME
     tables:
 
       - name: f_market_share
@@ -16,9 +15,6 @@ sources:
         description: >
           Monthly TRx volume and share by drug and indication. Grain is month-end
           date x drug x indication.
-        freshness:
-          warn_after: {count: 35, period: day}
-          error_after: {count: 45, period: day}
         columns:
           - name: DATE
             description: Month-end date the share figures apply to.
@@ -34,3 +30,9 @@ sources:
             description: "Derm or Rheum."
           - name: INSERT_TIME
             description: Timestamp the row landed in bronze. Drives source freshness.
+        config:
+          freshness:
+            warn_after: {count: 35, period: day}
+            error_after: {count: 45, period: day}
+    config:
+      loaded_at_field: INSERT_TIME

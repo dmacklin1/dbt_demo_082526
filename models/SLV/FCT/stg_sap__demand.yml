@@ -24,4 +24,5 @@ models:
         description: Timestamp the source row landed in bronze.
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: [demand_week, territory_id]
+          arguments:
+            combination_of_columns: [demand_week, territory_id]

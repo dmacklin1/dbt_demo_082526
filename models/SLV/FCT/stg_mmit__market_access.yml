@@ -18,14 +18,16 @@ models:
         tests:
           - not_null
           - accepted_values:
-              values: ['Commercial', 'Medicare', 'Medicaid', 'Federal']
+              arguments:
+                values: ['Commercial', 'Medicare', 'Medicaid', 'Federal']
       - name: segment_discount
         description: Negotiated discount rate for the segment, as a decimal.
         tests:
           - not_null
           - dbt_utils.accepted_range:
-              min_value: 0
-              max_value: 1
+              arguments:
+                min_value: 0
+                max_value: 1
       - name: payer_mix
         description: >
           Share of national volume attributable to the segment. Sums to 1.0 across
@@ -35,4 +37,5 @@ models:
         description: Timestamp the source row landed in bronze.
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: [access_week, payer_segment]
+          arguments:
+            combination_of_columns: [access_week, payer_segment]

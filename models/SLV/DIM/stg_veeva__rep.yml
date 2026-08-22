@@ -15,7 +15,8 @@ models:
           - unique
           - not_null
           - relationships:
-              to: ref('stg_internal__geography')
-              field: territory_id
+              arguments:
+                to: ref('stg_internal__geography')
+                field: territory_id
       - name: loaded_at
         description: Timestamp the source row landed in bronze.

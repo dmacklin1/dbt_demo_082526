@@ -14,11 +14,13 @@ models:
       - name: indication
         tests:
           - accepted_values:
-              values: ['Derm', 'Rheum']
+              arguments:
+                values: ['Derm', 'Rheum']
       - name: trx_volume
       - name: trx_share
       - name: is_our_brand
       - name: loaded_at
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: [share_month_end, drug_name, indication]
+          arguments:
+            combination_of_columns: [share_month_end, drug_name, indication]

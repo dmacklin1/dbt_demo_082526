@@ -7,7 +7,6 @@ sources:
       rates and payer mix that the gross-to-net calculation depends on.
     database: DBT_DEMO_BRZ
     schema: SOURCE_A
-    loaded_at_field: INSERT_TIME
     tables:
 
       - name: f_market_access
@@ -15,9 +14,6 @@ sources:
         description: >
           Weekly discount rate and payer mix by payer segment, at national level.
           Grain is date x segment.
-        freshness:
-          warn_after: {count: 7, period: day}
-          error_after: {count: 14, period: day}
         columns:
           - name: DATE
             description: Week-starting date.
@@ -33,3 +29,9 @@ sources:
               weight the segment discounts into a single blended rate.
           - name: INSERT_TIME
             description: Timestamp the row landed in bronze. Drives source freshness.
+        config:
+          freshness:
+            warn_after: {count: 7, period: day}
+            error_after: {count: 14, period: day}
+    config:
+      loaded_at_field: INSERT_TIME

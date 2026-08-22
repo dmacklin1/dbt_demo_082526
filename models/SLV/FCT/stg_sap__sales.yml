@@ -14,8 +14,9 @@ models:
         tests:
           - not_null
           - relationships:
-              to: ref('stg_internal__geography')
-              field: territory_id
+              arguments:
+                to: ref('stg_internal__geography')
+                field: territory_id
       - name: gross_sales
         description: Gross sales in USD before payer discount. Null after the last close.
       - name: net_sales_goal
@@ -32,4 +33,5 @@ models:
         description: Timestamp the source row landed in bronze.
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: [sales_week, territory_id]
+          arguments:
+            combination_of_columns: [sales_week, territory_id]
