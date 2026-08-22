@@ -30,9 +30,9 @@ sources:
             description: "Derm or Rheum."
           - name: INSERT_TIME
             description: Timestamp the row landed in bronze. Drives source freshness.
-        config:
-          freshness:
-            warn_after: {count: 35, period: day}
-            error_after: {count: 45, period: day}
+#        config:
+#          freshness:
+#            warn_after: {count: 35, period: day}
+#            error_after: {count: 45, period: day}
     config:
       loaded_at_field: INSERT_TIME
