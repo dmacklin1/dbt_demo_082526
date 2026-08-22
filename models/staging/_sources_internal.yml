@@ -1,0 +1,44 @@
+version: 2
+
+sources:
+  - name: internal
+    description: >
+      Internally maintained reference data. Territory alignment is set once per
+      plan year and the calendar is generated once. Freshness is deliberately
+      not configured on these — they are static by design, not unmonitored.
+    database: DBT_DEMO_BRZ
+    schema: SOURCE_A
+    loaded_at_field: INSERT_TIME
+    tables:
+
+      - name: d_geography
+        identifier: D_GEOGRAPHY
+        description: >
+          Territory alignment hierarchy: territory to area to region to nation,
+          with the population each territory covers. Reset annually.
+        columns:
+          - name: TERRITORY_ID
+            description: Unique territory identifier. Primary key.
+          - name: TERRITORY_NAME
+            description: Human-readable territory name.
+          - name: AREA_ID
+          - name: AREA_NAME
+            description: Area rollup, aligned to state.
+          - name: REGION_ID
+          - name: REGION_NAME
+            description: "Region rollup: Northeast, Midwest, South, or Northwest."
+          - name: NATION
+          - name: INSERT_TIME
+
+      - name: d_calendar
+        identifier: D_CALENDAR
+        description: Weekly calendar spine with the cycle each week belongs to.
+        columns:
+          - name: DATE
+            description: Week-starting date. Primary key.
+          - name: YEAR
+          - name: CYCLE_ID
+            description: "Sales cycle the week falls in, formatted YYYY-Qn."
+          - name: BUSINESS_DAYS_WEEK
+            description: Selling days available in the week. Used to normalise call rates.
+          - name: INSERT_TIME

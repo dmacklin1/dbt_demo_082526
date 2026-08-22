@@ -1,0 +1,116 @@
+version: 2
+
+models:
+
+  - name: stg_veeva__calls
+    description: >
+      One row per planned call, cleaned and typed. A null call_id means the call
+      was planned but not completed, so completed_call_flag is derived here to
+      make that explicit downstream.
+    columns:
+      - name: call_id
+        description: Identifier for a completed call. Null when the call did not happen.
+      - name: call_week
+        description: Week-starting date the call was planned for.
+        tests: [not_null]
+      - name: hcp_id
+        description: HCP the call was directed at.
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_veeva__hcp')
+              field: hcp_id
+      - name: rep_id
+        description: Rep who owned the call.
+        tests: [not_null]
+      - name: territory_id
+        description: Territory the call rolls up to.
+        tests: [not_null]
+      - name: indication
+        description: Therapeutic area detailed against.
+        tests:
+          - accepted_values:
+              values: ['Derm', 'Rheum']
+      - name: call_type
+        tests:
+          - accepted_values:
+              values: ['In-Person', 'Virtual']
+      - name: completed_call_flag
+        description: 1 when the call was completed, 0 when it was planned only.
+        tests:
+          - accepted_values:
+              values: [0, 1]
+              quote: false
+
+  - name: stg_sap__sales
+    description: >
+      Weekly gross sales, net sales goal, and the SAP-calculated net sales
+      figure retained for reconciliation.
+    columns:
+      - name: sales_week
+        tests: [not_null]
+      - name: territory_id
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_internal__geography')
+              field: territory_id
+      - name: gross_sales
+        description: Gross sales in USD before payer discount. Null after the last close.
+      - name: net_sales_goal
+        description: Territory net sales goal for the week. Populated for future weeks.
+      - name: net_sales_sap
+        description: >
+          SAP's own net sales calculation. Not the reported figure — kept only so
+          the recomputed number in gold can be reconciled against it.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [sales_week, territory_id]
+
+  - name: stg_sap__demand
+    description: Weekly TRx and NBRx by territory, with forecast NBRx.
+    columns:
+      - name: demand_week
+        tests: [not_null]
+      - name: territory_id
+        tests: [not_null]
+      - name: trx_actual
+        description: Total prescriptions. Null for weeks after the last financial close.
+      - name: nbrx_actual
+        description: New-to-brand prescriptions. Null for weeks after the last close.
+      - name: nbrx_forecast
+        description: Forecast NBRx, populated for all weeks including future ones.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [demand_week, territory_id]
+
+  - name: stg_mmit__market_access
+    description: Weekly discount rate and payer mix by payer segment, national level.
+    columns:
+      - name: access_week
+        tests: [not_null]
+      - name: payer_segment
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['Commercial', 'Medicare', 'Medicaid', 'Federal']
+      - name: segment_discount
+        description: Negotiated discount rate for the segment, as a decimal.
+        tests: [not_null]
+      - name: payer_mix
+        description: Share of national volume for the segment. Sums to 1.0 per week.
+        tests: [not_null]
+
+  # -----------------------------------------------------------------
+  # DEMO: descriptions deliberately omitted below. Generate them live
+  # with dbt Wizard, then correct the business meaning by hand.
+  # -----------------------------------------------------------------
+  - name: stg_iqvia__market_share
+    columns:
+      - name: share_month_end
+        tests: [not_null]
+      - name: drug_name
+      - name: indication
+      - name: trx_volume
+      - name: trx_share
+      - name: is_our_brand

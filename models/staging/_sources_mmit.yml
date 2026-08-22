@@ -1,0 +1,35 @@
+version: 2
+
+sources:
+  - name: mmit
+    description: >
+      MMIT. Payer access and formulary data. Supplies the segment-level discount
+      rates and payer mix that the gross-to-net calculation depends on.
+    database: DBT_DEMO_BRZ
+    schema: SOURCE_A
+    loaded_at_field: INSERT_TIME
+    tables:
+
+      - name: f_market_access
+        identifier: F_MARKET_ACCESS
+        description: >
+          Weekly discount rate and payer mix by payer segment, at national level.
+          Grain is date x segment.
+        freshness:
+          warn_after: {count: 7, period: day}
+          error_after: {count: 14, period: day}
+        columns:
+          - name: DATE
+            description: Week-starting date.
+          - name: SEGMENT
+            description: "Payer segment: Commercial, Medicare, Medicaid, or Federal."
+          - name: SEGMENT_DISCOUNT
+            description: >
+              Negotiated discount rate for that segment, as a decimal. Feeds the
+              gross-to-net calculation in the gold layer.
+          - name: PAYER_MIX
+            description: >
+              Share of national volume attributable to that segment. Used to
+              weight the segment discounts into a single blended rate.
+          - name: INSERT_TIME
+            description: Timestamp the row landed in bronze. Drives source freshness.

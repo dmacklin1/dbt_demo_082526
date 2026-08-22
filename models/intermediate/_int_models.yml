@@ -1,0 +1,63 @@
+version: 2
+
+models:
+
+  - name: int_market_access__blended_discount
+    description: >
+      Weighted-average discount rate for the national book of business. Each
+      payer segment's negotiated discount is weighted by that segment's share of
+      volume, producing one blended rate per week.
+
+      This model is where the discount half of net sales originates. Anyone
+      tracing net sales upstream lands here, and then in MMIT.
+    columns:
+      - name: access_week
+        description: Week-starting date.
+        tests: [unique, not_null]
+      - name: blended_discount_rate
+        description: >
+          Volume-weighted discount rate applied to gross sales, as a decimal.
+          Typically runs in the 0.25 to 0.35 range given the current payer mix.
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 1
+      - name: segments_contributing
+        description: >
+          Number of payer segments present in the week. Expected to be 4. A lower
+          number means a segment failed to load and the blended rate is understated.
+        tests:
+          - accepted_values:
+              values: [4]
+              quote: false
+              config:
+                severity: warn
+
+  - name: int_calls__territory_week
+    description: >
+      Call activity aggregated from the individual call record up to territory
+      and week. Aggregating here is what allows the gold facts to join call
+      activity to sales without fanning out the grain.
+
+      Reach and frequency are defined once, in this model, rather than being
+      reimplemented in each downstream report.
+    columns:
+      - name: call_week
+        tests: [not_null]
+      - name: territory_id
+        tests: [not_null]
+      - name: calls_planned
+        description: Calls on the plan for the territory that week.
+      - name: calls_completed
+        description: Calls actually executed. Always less than or equal to calls_planned.
+      - name: hcps_reached
+        description: Distinct HCPs who received at least one completed call.
+      - name: hcps_targeted
+        description: >
+          Distinct HCPs on the target list (tiers T1 to T3) with a planned call.
+          Non-target HCPs are excluded, which is what makes reach comparable
+          across territories.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [call_week, territory_id]
