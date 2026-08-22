@@ -49,9 +49,9 @@ sources:
       - name: d_hcp
         identifier: D_HCP
         description: HCP master. One row per health care professional.
-        # freshness:
-        #   warn_after: {count: 7, period: day}
-        #   error_after: {count: 14, period: day}
+        freshness:
+          warn_after: {count: 7, period: day}
+          error_after: {count: 14, period: day}
         columns:
           - name: HCP_ID
           - name: TIER
