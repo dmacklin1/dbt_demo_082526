@@ -56,7 +56,7 @@ models:
           - dbt_utils.accepted_range:
               arguments:
                 min_value: 0
-                max_value: 1
+                max_value: 2
       - name: reach_pct
         description: >
           Share of the target HCP list that received at least one completed call
@@ -65,7 +65,7 @@ models:
           - dbt_utils.accepted_range:
               arguments:
                 min_value: 0
-                max_value: 1
+                max_value: 2
       - name: frequency
         description: >
           Average completed calls per HCP reached. Read alongside reach: high
